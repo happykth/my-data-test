@@ -71,19 +71,46 @@ st.text_area(
 st.divider()
 
 # ==============================================================
-# 구역 2. (다음 그래프를 추가할 자리)
+# 구역 2. 관객수 상위 5편의 날짜별 변화 비교
 # ==============================================================
-# st.header("구역 2. ")
-#
-# (여기에 두 번째 그래프 코드를 추가하세요)
-#
-# st.text_area(
-#     "📌 이 그래프로 알 수 있는 것",
-#     placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
-#     key="insight_2",
-# )
-#
-# st.divider()
+st.header("구역 2. 관객수 상위 5편의 날짜별 변화 비교")
+
+# 기간 전체 일관객 합계 기준 상위 5편 선정
+top5_movies = (
+    df.groupby("영화명")["일관객"].sum().sort_values(ascending=False).head(5).index.tolist()
+)
+
+top5_df = df[df["영화명"].isin(top5_movies)].sort_values("날짜")
+
+fig2 = px.line(
+    top5_df,
+    x="날짜",
+    y="일관객",
+    color="영화명",
+    markers=True,
+    title="일관객 합계 상위 5편의 날짜별 일일 관객수",
+    color_discrete_sequence=WARM_COLORS,
+    category_orders={"영화명": top5_movies},
+)
+fig2.update_traces(
+    hovertemplate="%{fullData.name}<br>날짜: %{x|%Y-%m-%d}<br>일일 관객수: %{y:,}명<extra></extra>"
+)
+fig2.update_layout(
+    xaxis_title="날짜",
+    yaxis_title="일일 관객수(명)",
+    hovermode="x unified",
+    legend_title_text="영화명 (클릭해서 켜고 끄기)",
+)
+
+st.plotly_chart(fig2, use_container_width=True)
+
+st.text_area(
+    "📌 이 그래프로 알 수 있는 것",
+    placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
+    key="insight_2",
+)
+
+st.divider()
 
 # ==============================================================
 # 구역 3. (다음 그래프를 추가할 자리)

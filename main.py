@@ -61,8 +61,12 @@ fig1.update_layout(
 
 st.plotly_chart(fig1, use_container_width=True)
 
-# TODO: 이 그래프로 알 수 있는 것을 여기에 한 문장으로 작성하세요.
-st.info("📌 이 그래프로 알 수 있는 것: ")
+# 이 그래프로 알 수 있는 것을 직접 입력할 수 있는 칸
+st.text_area(
+    "📌 이 그래프로 알 수 있는 것",
+    placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
+    key="insight_1",
+)
 
 st.divider()
 
@@ -73,7 +77,11 @@ st.divider()
 #
 # (여기에 두 번째 그래프 코드를 추가하세요)
 #
-# st.info("📌 이 그래프로 알 수 있는 것: ")
+# st.text_area(
+#     "📌 이 그래프로 알 수 있는 것",
+#     placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
+#     key="insight_2",
+# )
 #
 # st.divider()
 
@@ -84,4 +92,8 @@ st.divider()
 #
 # (여기에 세 번째 그래프 코드를 추가하세요)
 #
-# st.info("📌 이 그래프로 알 수 있는 것: ")
+# st.text_area(
+#     "📌 이 그래프로 알 수 있는 것",
+#     placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
+#     key="insight_3",
+# )

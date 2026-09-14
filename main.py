@@ -113,14 +113,58 @@ st.text_area(
 st.divider()
 
 # ==============================================================
-# 구역 3. (다음 그래프를 추가할 자리)
+# 구역 3. 날짜별 박스오피스 10위권 총 관객수
 # ==============================================================
-# st.header("구역 3. ")
-#
-# (여기에 세 번째 그래프 코드를 추가하세요)
-#
-# st.text_area(
-#     "📌 이 그래프로 알 수 있는 것",
-#     placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
-#     key="insight_3",
-# )
+st.header("구역 3. 날짜별 박스오피스 10위권 총 관객수")
+
+daily_total = df.groupby("날짜")["일관객"].sum().reset_index()
+
+fig3 = px.area(
+    daily_total,
+    x="날짜",
+    y="일관객",
+    title="날짜별 박스오피스 10위권 총 관객수",
+    color_discrete_sequence=[WARM_COLORS[2]],
+)
+fig3.update_traces(
+    hovertemplate="날짜: %{x|%Y-%m-%d}<br>총 관객수: %{y:,}명<extra></extra>"
+)
+fig3.update_layout(
+    xaxis_title="날짜",
+    yaxis_title="10위권 총 관객수(명)",
+    hovermode="x unified",
+)
+
+# 총 관객수가 가장 컸던 3일 표시
+top3_days = daily_total.sort_values("일관객", ascending=False).head(3)
+
+for _, row in top3_days.iterrows():
+    fig3.add_annotation(
+        x=row["날짜"],
+        y=row["일관객"],
+        text=row["날짜"].strftime("%Y-%m-%d"),
+        showarrow=True,
+        arrowhead=2,
+        ax=0,
+        ay=-40,
+        font=dict(color=WARM_COLORS[3]),
+        bgcolor="rgba(255,255,255,0.8)",
+    )
+
+fig3.add_scatter(
+    x=top3_days["날짜"],
+    y=top3_days["일관객"],
+    mode="markers",
+    marker=dict(color=WARM_COLORS[0], size=12, symbol="star"),
+    hovertemplate="날짜: %{x|%Y-%m-%d}<br>총 관객수: %{y:,}명<extra></extra>",
+    showlegend=False,
+    name="",
+)
+
+st.plotly_chart(fig3, use_container_width=True)
+
+st.text_area(
+    "📌 이 그래프로 알 수 있는 것",
+    placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
+    key="insight_3",
+)

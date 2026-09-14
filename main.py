@@ -209,3 +209,51 @@ st.text_area(
     placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
     key="insight_4",
 )
+
+st.divider()
+
+# ==============================================================
+# 구역 5. 월 x 요일별 총 관객수 히트맵
+# ==============================================================
+st.header("구역 5. 월 x 요일별 총 관객수 히트맵")
+
+heatmap_df = df.copy()
+heatmap_df["월"] = heatmap_df["날짜"].dt.month
+heatmap_df["요일"] = heatmap_df["날짜"].dt.dayofweek  # 0=월요일 ... 6=일요일
+
+weekday_names = ["월", "화", "수", "목", "금", "토", "일"]
+heatmap_df["요일명"] = heatmap_df["요일"].map(dict(enumerate(weekday_names)))
+
+pivot = (
+    heatmap_df.groupby(["월", "요일명"])["일관객"]
+    .sum()
+    .reset_index()
+    .pivot(index="요일명", columns="월", values="일관객")
+    .reindex(index=weekday_names)  # 월요일 -> 일요일 순서 고정
+    .sort_index(axis=1)  # 월(1~12) 순서 고정
+)
+
+fig5 = px.imshow(
+    pivot,
+    labels=dict(x="월", y="요일", color="총 관객수"),
+    x=[f"{m}월" for m in pivot.columns],
+    y=pivot.index,
+    color_continuous_scale="Oranges",  # 진할수록 관객 많음
+    aspect="auto",
+    title="월 x 요일별 박스오피스 10위권 총 관객수",
+)
+fig5.update_traces(
+    hovertemplate="%{x} %{y}요일<br>총 관객수: %{z:,}명<extra></extra>"
+)
+fig5.update_layout(
+    xaxis_title="월",
+    yaxis_title="요일",
+)
+
+st.plotly_chart(fig5, use_container_width=True)
+
+st.text_area(
+    "📌 이 그래프로 알 수 있는 것",
+    placeholder="이 그래프를 보고 알 수 있는 점을 한 문장으로 적어보세요.",
+    key="insight_5",
+)

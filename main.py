@@ -71,32 +71,42 @@ st.text_area(
 st.divider()
 
 # ==============================================================
-# 구역 2. 관객수 상위 5편의 날짜별 변화 비교
+# 구역 2. 관객수 상위 5편의 "개봉 후 경과일"별 변화 비교
 # ==============================================================
-st.header("구역 2. 관객수 상위 5편의 날짜별 변화 비교")
+st.header("구역 2. 관객수 상위 5편의 개봉 후 한 달간 변화 비교")
+st.caption("※ 개봉일은 데이터에서 각 영화가 처음 10위권에 든 날짜를 기준으로 했어요.")
 
 # 기간 전체 일관객 합계 기준 상위 5편 선정
 top5_movies = (
     df.groupby("영화명")["일관객"].sum().sort_values(ascending=False).head(5).index.tolist()
 )
 
-top5_df = df[df["영화명"].isin(top5_movies)].sort_values("날짜")
+top5_df = df[df["영화명"].isin(top5_movies)].sort_values("날짜").copy()
+
+# 영화별 개봉일(최초 10위권 진입일) 계산 후, 개봉 후 경과일로 변환
+release_dates = top5_df.groupby("영화명")["날짜"].min()
+top5_df["개봉일"] = top5_df["영화명"].map(release_dates)
+top5_df["경과일"] = (top5_df["날짜"] - top5_df["개봉일"]).dt.days
+
+# 개봉 후 한 달(30일)까지만
+top5_df = top5_df[top5_df["경과일"] <= 30]
 
 fig2 = px.line(
     top5_df,
-    x="날짜",
+    x="경과일",
     y="일관객",
     color="영화명",
     markers=True,
-    title="일관객 합계 상위 5편의 날짜별 일일 관객수",
+    title="개봉 후 30일간 일일 관객수 비교 (상위 5편)",
     color_discrete_sequence=WARM_COLORS,
     category_orders={"영화명": top5_movies},
+    custom_data=["날짜"],
 )
 fig2.update_traces(
-    hovertemplate="%{fullData.name}<br>날짜: %{x|%Y-%m-%d}<br>일일 관객수: %{y:,}명<extra></extra>"
+    hovertemplate="%{fullData.name}<br>개봉 후 %{x}일째 (%{customdata[0]|%Y-%m-%d})<br>일일 관객수: %{y:,}명<extra></extra>"
 )
 fig2.update_layout(
-    xaxis_title="날짜",
+    xaxis_title="개봉 후 경과일",
     yaxis_title="일일 관객수(명)",
     hovermode="x unified",
     legend_title_text="영화명 (클릭해서 켜고 끄기)",
